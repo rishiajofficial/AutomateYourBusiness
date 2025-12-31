@@ -1,0 +1,235 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --text-dark: #1f2937;
+    --text-gray: #6b7280;
+    --text-light: #9ca3af;
+    --bg-white: #ffffff;
+    --bg-light: #f9fafb;
+    --bg-gray: #f3f4f6;
+    --border-color: #e5e7eb;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background: var(--bg-white);
+    font-size: 16px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Main Header */
+.main-header {
+    padding: 4rem 0 3rem;
+    background: var(--bg-light);
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.brand-name {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.brand-tagline {
+    font-size: 1.15rem;
+    color: var(--text-gray);
+    font-weight: 400;
+}
+
+/* About Section */
+.about-section {
+    padding: 5rem 0;
+    background: var(--bg-white);
+}
+
+.about-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
+    letter-spacing: -0.02em;
+}
+
+.about-text {
+    font-size: 1.15rem;
+    color: var(--text-gray);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+.about-text strong {
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+/* Projects Section */
+.projects-section {
+    padding: 5rem 0;
+    background: var(--bg-light);
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.project-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    display: block;
+    box-shadow: var(--shadow-sm);
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+.project-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.project-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+}
+
+.project-description {
+    font-size: 1.05rem;
+    color: var(--text-gray);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.tag {
+    background: var(--bg-light);
+    color: var(--text-gray);
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+}
+
+.project-link {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+.project-card:hover .project-link {
+    text-decoration: underline;
+}
+
+/* Footer */
+.main-footer {
+    background: var(--text-dark);
+    color: var(--text-light);
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.main-footer p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1.5rem;
+    }
+
+    .main-header {
+        padding: 3rem 0 2rem;
+    }
+
+    .brand-name {
+        font-size: 2.25rem;
+    }
+
+    .brand-tagline {
+        font-size: 1rem;
+    }
+
+    .about-section,
+    .projects-section {
+        padding: 3rem 0;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .about-text {
+        font-size: 1.05rem;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .project-card {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-name {
+        font-size: 1.75rem;
+    }
+
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .project-title {
+        font-size: 1.5rem;
+    }
+}
