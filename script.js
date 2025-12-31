@@ -1,109 +1,66 @@
 // Smooth scroll behavior
 document.addEventListener('DOMContentLoaded', function() {
-    // Add smooth scrolling to all anchor links
+    // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const target = document.querySelector(href);
             if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+                const headerOffset = 80;
+                const elementPosition = target.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
                 });
             }
         });
     });
 
-    // Download button handler
-    const downloadBtn = document.getElementById('downloadBtn');
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', function() {
-            // Replace this URL with your actual PDF download link
-            // For now, it will show an alert - you can update this to your Gumroad/Stripe checkout
-            const pdfUrl = '#'; // Replace with your actual PDF URL or checkout link
+    // Booking form handler
+    const bookingForm = document.getElementById('bookingForm');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            if (pdfUrl && pdfUrl !== '#') {
-                window.open(pdfUrl, '_blank');
-            } else {
-                // Placeholder - replace with your actual checkout flow
-                alert('Download link will be configured here. Replace this with your Gumroad/Stripe checkout URL.');
-                
-                // Example: Redirect to checkout
-                // window.location.href = 'https://your-gumroad-link.com/automate-your-business';
-            }
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                sessionType: document.getElementById('session-type').value,
+                preferredDate: document.getElementById('preferred-date').value,
+                topic: document.getElementById('topic').value
+            };
+
+            // Show success message
+            alert('Thank you for requesting a ThinkGym session.\n\nWe\'ll confirm your session details via email within 24 hours.\n\nIf you have any urgent questions, please feel free to reach out directly.');
+            
+            // Reset form
+            bookingForm.reset();
+            
+            // Optional: Send to your backend/email service
+            // fetch('/api/booking', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(formData)
+            // });
         });
     }
 
-    // Add animation on scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+    // Sticky header shadow on scroll
+    const stickyHeader = document.querySelector('.sticky-header');
+    if (stickyHeader) {
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 10) {
+                stickyHeader.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+            } else {
+                stickyHeader.style.boxShadow = 'none';
             }
         });
-    }, observerOptions);
-
-    // Observe all feature cards and sections
-    document.querySelectorAll('.feature-card, .section').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(el);
-    });
-
-    // Add click tracking (optional - for analytics)
-    document.querySelectorAll('.cta-button, .feature-card').forEach(element => {
-        element.addEventListener('click', function() {
-            // You can add analytics tracking here
-            // Example: gtag('event', 'click', { 'event_category': 'CTA', 'event_label': 'Download Button' });
-        });
-    });
+    }
 });
-
-// Add a simple scroll-to-top button (optional enhancement)
-function createScrollToTop() {
-    const button = document.createElement('button');
-    button.innerHTML = '↑';
-    button.className = 'scroll-to-top';
-    button.style.cssText = `
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        display: none;
-        z-index: 1000;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s;
-    `;
-    
-    button.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    
-    window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            button.style.display = 'block';
-        } else {
-            button.style.display = 'none';
-        }
-    });
-    
-    document.body.appendChild(button);
-}
-
-// Initialize scroll-to-top button
-createScrollToTop();
-
