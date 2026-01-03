@@ -236,10 +236,40 @@
             <button class="cta-button" id="downloadBtn">👉 Download the PDF Now</button>
         </section>
 
+        <!-- Download Form Section -->
+        <section class="section download-form-section" id="download-form" style="display: none;">
+            <div class="container">
+                <div class="download-form-container">
+                    <h3>Get Your PDF Guide</h3>
+                    <p class="download-form-intro">Fill out the form below to download your automation guide:</p>
+                    <form class="download-form" id="downloadForm">
+                        <div class="form-group">
+                            <label for="download-name">Your Name</label>
+                            <input type="text" id="download-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="download-email">Email</label>
+                            <input type="email" id="download-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="download-phone">Phone (WhatsApp)</label>
+                            <input type="tel" id="download-phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="download-business">Business Type</label>
+                            <input type="text" id="download-business" name="business" placeholder="e.g., Manufacturing, Services, E-commerce" required>
+                        </div>
+                        <button type="submit" class="cta-button">Download PDF ($1 / ₹99)</button>
+                        <p class="form-note">After submission, you'll receive the download link via email.</p>
+                    </form>
+                </div>
+            </div>
+        </section>
+
         <!-- Done-For-You Section -->
         <section class="section dfy-section">
             <h2 class="section-title">Want this done-for-you?</h2>
-            <p>At the end of the PDF, you'll find a direct link to message us if you want:</p>
+            <p>If you want us to set this up for you, fill out the form below:</p>
             <ul class="dfy-list">
                 <li>Custom automation setup</li>
                 <li>WhatsApp / website / HR automation</li>
@@ -247,8 +277,43 @@
             </ul>
             <p class="dfy-note">No pressure. Only if it makes sense for your business.</p>
         </section>
+
+        <!-- Contact Form Section -->
+        <section class="section contact-form-section">
+            <div class="container">
+                <div class="contact-form-container">
+                    <h3>Get in Touch</h3>
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone (WhatsApp)</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="business">Business Type</label>
+                            <input type="text" id="business" name="business" placeholder="e.g., Manufacturing, Services, E-commerce" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="interest">What are you interested in?</label>
+                            <textarea id="interest" name="interest" rows="3" placeholder="Tell us about the automation you need (e.g., WhatsApp automation, HR automation, etc.)"></textarea>
+                        </div>
+                        <button type="submit" class="cta-button">Send Message</button>
+                        <p class="form-note">We'll get back to you within 24 hours.</p>
+                    </form>
+                </div>
+            </div>
+        </section>
     </div>
 
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

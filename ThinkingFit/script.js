@@ -26,25 +26,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Contact form handler with EmailJS
-    const contactForm = document.getElementById('opsReviewForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+    // Membership form handler with EmailJS
+    const membershipForm = document.getElementById('membershipForm');
+    if (membershipForm) {
+        membershipForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Show loading state
-            const submitButton = contactForm.querySelector('button[type="submit"]');
+            const submitButton = membershipForm.querySelector('button[type="submit"]');
             const originalButtonText = submitButton.textContent;
-            submitButton.textContent = 'Sending...';
+            submitButton.textContent = 'Submitting...';
             submitButton.disabled = true;
             
             // Prepare email template parameters
             const templateParams = {
                 from_name: document.getElementById('name').value,
                 from_email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                business: document.getElementById('business').value,
-                challenge: document.getElementById('challenge').value,
+                role: document.getElementById('role').value,
+                experience: document.getElementById('experience').value,
+                interest: document.getElementById('interest').value || 'Not provided',
+                member_type: document.getElementById('member-type').value,
                 to_email: 'YOUR_EMAIL@example.com' // Replace with your email
             };
 
@@ -54,11 +55,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('SUCCESS!', response.status, response.text);
                     
                     // Show success message
-                    alert('Thank you! We\'ll reach out to you shortly to schedule your free ops review.\n\n' +
-                          'In the meantime, you can also contact us directly via email or WhatsApp.');
+                    alert('Thank you for your interest in ThinkingFit.\n\nWe\'ll review your information and get back to you within 48 hours to discuss fit and next steps.\n\nWe appreciate your patience as we take time to ensure the right conversations.');
                     
                     // Reset form
-                    contactForm.reset();
+                    membershipForm.reset();
                     
                     // Reset button
                     submitButton.textContent = originalButtonText;
@@ -76,39 +76,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add subtle fade-in animation on scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    // Observe sections for fade-in effect
-    document.querySelectorAll('.section, .problem-item, .impact-item, .different-item, .step').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(el);
-    });
-
     // Sticky header shadow on scroll
     const stickyHeader = document.querySelector('.sticky-header');
     if (stickyHeader) {
         window.addEventListener('scroll', function() {
             if (window.scrollY > 10) {
-                stickyHeader.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                stickyHeader.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
             } else {
-                stickyHeader.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
-        }
-    });
+                stickyHeader.style.boxShadow = 'none';
+            }
+        });
     }
 });
+
 

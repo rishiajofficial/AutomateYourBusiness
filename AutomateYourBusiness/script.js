@@ -1,3 +1,8 @@
+// Initialize EmailJS
+(function() {
+    emailjs.init("pNhQJVEpwaz1Ban6h");
+})();
+
 // Smooth scroll behavior
 document.addEventListener('DOMContentLoaded', function() {
     // Add smooth scrolling to all anchor links
@@ -14,23 +19,120 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Download button handler
+    // Download button handler - show form
     const downloadBtn = document.getElementById('downloadBtn');
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', function() {
-            // Replace this URL with your actual PDF download link
-            // For now, it will show an alert - you can update this to your Gumroad/Stripe checkout
-            const pdfUrl = '#'; // Replace with your actual PDF URL or checkout link
+    const downloadFormSection = document.getElementById('download-form');
+    if (downloadBtn && downloadFormSection) {
+        downloadBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Show the download form section
+            downloadFormSection.style.display = 'block';
+            // Scroll to the form
+            downloadFormSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        });
+    }
+
+    // Download form handler with EmailJS
+    const downloadForm = document.getElementById('downloadForm');
+    if (downloadForm) {
+        downloadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            if (pdfUrl && pdfUrl !== '#') {
-                window.open(pdfUrl, '_blank');
-            } else {
-                // Placeholder - replace with your actual checkout flow
-                alert('Download link will be configured here. Replace this with your Gumroad/Stripe checkout URL.');
-                
-                // Example: Redirect to checkout
-                // window.location.href = 'https://your-gumroad-link.com/automate-your-business';
-            }
+            // Show loading state
+            const submitButton = downloadForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = 'Processing...';
+            submitButton.disabled = true;
+            
+            // Prepare email template parameters
+            const templateParams = {
+                from_name: document.getElementById('download-name').value,
+                from_email: document.getElementById('download-email').value,
+                phone: document.getElementById('download-phone').value,
+                business: document.getElementById('download-business').value,
+                form_type: 'PDF Download Request',
+                to_email: 'YOUR_EMAIL@example.com' // Replace with your email
+            };
+
+            // Send email using EmailJS
+            emailjs.send('service_xktby6a', 'template_3115a6k', templateParams)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                    
+                    // Show success message
+                    alert('Thank you! Your request has been received.\n\nYou will receive the PDF download link via email shortly.\n\nIf you don\'t see the email, please check your spam folder.');
+                    
+                    // Reset form
+                    downloadForm.reset();
+                    
+                    // Reset button
+                    submitButton.textContent = originalButtonText;
+                    submitButton.disabled = false;
+                    
+                    // Optionally hide the form after successful submission
+                    // downloadFormSection.style.display = 'none';
+                }, function(error) {
+                    console.log('FAILED...', error);
+                    
+                    // Show error message
+                    alert('Sorry, there was an error processing your request. Please try again or contact us directly.');
+                    
+                    // Reset button
+                    submitButton.textContent = originalButtonText;
+                    submitButton.disabled = false;
+                });
+        });
+    }
+
+    // Contact form handler with EmailJS
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitButton = contactForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = 'Sending...';
+            submitButton.disabled = true;
+            
+            // Prepare email template parameters
+            const templateParams = {
+                from_name: document.getElementById('name').value,
+                from_email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                business: document.getElementById('business').value,
+                interest: document.getElementById('interest').value,
+                to_email: 'YOUR_EMAIL@example.com' // Replace with your email
+            };
+
+            // Send email using EmailJS
+            emailjs.send('service_xktby6a', 'template_3115a6k', templateParams)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                    
+                    // Show success message
+                    alert('Thank you for your interest! We\'ll get back to you within 24 hours to discuss your automation needs.');
+                    
+                    // Reset form
+                    contactForm.reset();
+                    
+                    // Reset button
+                    submitButton.textContent = originalButtonText;
+                    submitButton.disabled = false;
+                }, function(error) {
+                    console.log('FAILED...', error);
+                    
+                    // Show error message
+                    alert('Sorry, there was an error submitting your request. Please try again or contact us directly.');
+                    
+                    // Reset button
+                    submitButton.textContent = originalButtonText;
+                    submitButton.disabled = false;
+                });
         });
     }
 
