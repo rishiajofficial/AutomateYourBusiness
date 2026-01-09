@@ -2,21 +2,61 @@
 (function() {
     'use strict';
 
-    let analyticsData = null;
+    let analyticsData = {
+        summary: null,
+        viewsOverTime: [],
+        sources: [],
+        pages: [],
+        recent: []
+    };
     let viewsChart = null;
     let sourcesChart = null;
 
-    // Get analytics data from localStorage
-    function getAnalyticsData() {
-        const data = localStorage.getItem('ac_co_analytics');
-        return data ? JSON.parse(data) : { pageViews: [], sessions: [] };
+    // API endpoint configuration
+    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : ''; // Set to your production API URL
+
+    // Fetch data from API
+    async function fetchAnalyticsData() {
+        try {
+            if (!API_BASE_URL) {
+                throw new Error('API URL not configured');
+            }
+
+            const [summary, viewsOverTime, sources, pages, recent] = await Promise.all([
+                fetch(`${API_BASE_URL}/api/analytics/summary`).then(r => r.json()),
+                fetch(`${API_BASE_URL}/api/analytics/views-over-time?days=30`).then(r => r.json()),
+                fetch(`${API_BASE_URL}/api/analytics/sources`).then(r => r.json()),
+                fetch(`${API_BASE_URL}/api/analytics/pages?limit=10`).then(r => r.json()),
+                fetch(`${API_BASE_URL}/api/analytics/recent?limit=20`).then(r => r.json())
+            ]);
+
+            analyticsData = {
+                summary,
+                viewsOverTime,
+                sources,
+                pages,
+                recent
+            };
+
+            return true;
+        } catch (error) {
+            console.error('Error fetching analytics data:', error);
+            return false;
+        }
     }
 
     // Initialize dashboard
-    function initDashboard() {
-        analyticsData = getAnalyticsData();
+    async function initDashboard() {
+        const success = await fetchAnalyticsData();
         
-        if (analyticsData.pageViews.length === 0) {
+        if (!success || !analyticsData.summary) {
+            showEmptyState('Unable to load analytics data. Make sure the backend server is running.');
+            return;
+        }
+
+        if (analyticsData.summary.totalViews === 0) {
             showEmptyState();
             return;
         }
@@ -28,12 +68,13 @@
     }
 
     // Show empty state
-    function showEmptyState() {
+    function showEmptyState(message) {
         const content = document.querySelector('.dashboard-content');
+        const defaultMessage = 'Start browsing your site to collect analytics data.';
         content.innerHTML = `
             <div class="empty-state">
                 <h2>No Analytics Data Yet</h2>
-                <p>Start browsing your site to collect analytics data.</p>
+                <p>${message || defaultMessage}</p>
                 <a href="index.html" class="btn-link" style="margin-top: 1rem; display: inline-block;">Go to Site</a>
             </div>
         `;
@@ -41,29 +82,12 @@
 
     // Update summary cards
     function updateSummaryCards() {
-        const pageViews = analyticsData.pageViews;
-        const sessions = analyticsData.sessions;
+        const summary = analyticsData.summary;
         
-        // Total page views
-        document.getElementById('totalViews').textContent = pageViews.length.toLocaleString();
-        
-        // Total sessions
-        document.getElementById('totalSessions').textContent = sessions.length.toLocaleString();
-        
-        // Unique pages
-        const uniquePages = new Set(pageViews.map(pv => pv.page));
-        document.getElementById('uniquePages').textContent = uniquePages.size;
-        
-        // Top referrer
-        const referrerCounts = {};
-        pageViews.forEach(pv => {
-            referrerCounts[pv.referrer] = (referrerCounts[pv.referrer] || 0) + 1;
-        });
-        const topReferrer = Object.entries(referrerCounts)
-            .sort((a, b) => b[1] - a[1])[0];
-        document.getElementById('topReferrer').textContent = topReferrer 
-            ? `${topReferrer[0]} (${topReferrer[1]})` 
-            : '-';
+        document.getElementById('totalViews').textContent = summary.totalViews.toLocaleString();
+        document.getElementById('totalSessions').textContent = summary.totalSessions.toLocaleString();
+        document.getElementById('uniquePages').textContent = summary.uniquePages;
+        document.getElementById('topReferrer').textContent = summary.topReferrer;
     }
 
     // Update charts
@@ -74,17 +98,10 @@
 
     // Update page views over time chart
     function updateViewsChart() {
-        const pageViews = analyticsData.pageViews;
+        const viewsOverTime = analyticsData.viewsOverTime;
         
-        // Group by date
-        const dateCounts = {};
-        pageViews.forEach(pv => {
-            const date = pv.date;
-            dateCounts[date] = (dateCounts[date] || 0) + 1;
-        });
-        
-        const dates = Object.keys(dateCounts).sort();
-        const counts = dates.map(date => dateCounts[date]);
+        const dates = viewsOverTime.map(item => item.date);
+        const counts = viewsOverTime.map(item => item.count);
         
         const ctx = document.getElementById('viewsChart').getContext('2d');
         
@@ -127,21 +144,10 @@
 
     // Update traffic sources chart
     function updateSourcesChart() {
-        const pageViews = analyticsData.pageViews;
+        const sources = analyticsData.sources.slice(0, 10);
         
-        // Count referrers
-        const referrerCounts = {};
-        pageViews.forEach(pv => {
-            const ref = pv.referrer || 'direct';
-            referrerCounts[ref] = (referrerCounts[ref] || 0) + 1;
-        });
-        
-        const sorted = Object.entries(referrerCounts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10);
-        
-        const labels = sorted.map(item => item[0]);
-        const data = sorted.map(item => item[1]);
+        const labels = sources.map(item => item.referrer);
+        const data = sources.map(item => item.count);
         
         const ctx = document.getElementById('sourcesChart').getContext('2d');
         
@@ -190,27 +196,16 @@
 
     // Update most visited pages table
     function updatePagesTable() {
-        const pageViews = analyticsData.pageViews;
+        const pages = analyticsData.pages;
+        const total = analyticsData.summary.totalViews;
         
-        // Count page views
-        const pageCounts = {};
-        pageViews.forEach(pv => {
-            const page = pv.page || '/';
-            pageCounts[page] = (pageCounts[page] || 0) + 1;
-        });
-        
-        const sorted = Object.entries(pageCounts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10);
-        
-        const total = pageViews.length;
         const tbody = document.querySelector('#pagesTable tbody');
-        tbody.innerHTML = sorted.map(([page, count]) => {
-            const percentage = ((count / total) * 100).toFixed(1);
+        tbody.innerHTML = pages.map(item => {
+            const percentage = ((item.count / total) * 100).toFixed(1);
             return `
                 <tr>
-                    <td>${page || '/'}</td>
-                    <td>${count}</td>
+                    <td>${item.page || '/'}</td>
+                    <td>${item.count}</td>
                     <td>${percentage}%</td>
                 </tr>
             `;
@@ -219,27 +214,16 @@
 
     // Update traffic sources table
     function updateSourcesTable() {
-        const pageViews = analyticsData.pageViews;
+        const sources = analyticsData.sources.slice(0, 10);
+        const total = analyticsData.summary.totalViews;
         
-        // Count referrers
-        const referrerCounts = {};
-        pageViews.forEach(pv => {
-            const ref = pv.referrer || 'direct';
-            referrerCounts[ref] = (referrerCounts[ref] || 0) + 1;
-        });
-        
-        const sorted = Object.entries(referrerCounts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10);
-        
-        const total = pageViews.length;
         const tbody = document.querySelector('#sourcesTable tbody');
-        tbody.innerHTML = sorted.map(([source, count]) => {
-            const percentage = ((count / total) * 100).toFixed(1);
+        tbody.innerHTML = sources.map(item => {
+            const percentage = ((item.count / total) * 100).toFixed(1);
             return `
                 <tr>
-                    <td>${source}</td>
-                    <td>${count}</td>
+                    <td>${item.referrer}</td>
+                    <td>${item.count}</td>
                     <td>${percentage}%</td>
                 </tr>
             `;
@@ -248,18 +232,15 @@
 
     // Update recent activity table
     function updateRecentTable() {
-        const pageViews = analyticsData.pageViews;
-        
-        // Get last 20 page views
-        const recent = pageViews.slice(-20).reverse();
+        const recent = analyticsData.recent;
         
         const tbody = document.querySelector('#recentTable tbody');
-        tbody.innerHTML = recent.map(pv => {
-            const date = new Date(pv.timestamp);
+        tbody.innerHTML = recent.map(item => {
+            const date = new Date(item.timestamp);
             const timeStr = date.toLocaleString();
-            const page = pv.page || '/';
-            const referrer = pv.referrer || 'direct';
-            const campaign = pv.utm?.utm_campaign || '-';
+            const page = item.page || '/';
+            const referrer = item.referrer || 'direct';
+            const campaign = item.utm_campaign || '-';
             
             return `
                 <tr>
@@ -275,23 +256,42 @@
     // Setup event listeners
     function setupEventListeners() {
         // Export data
-        document.getElementById('exportBtn').addEventListener('click', function() {
-            const dataStr = JSON.stringify(analyticsData, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `analytics-export-${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
-            URL.revokeObjectURL(url);
+        document.getElementById('exportBtn').addEventListener('click', async function() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/analytics/export`);
+                const data = await response.json();
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `analytics-export-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Failed to export data. Please try again.');
+                console.error('Export error:', error);
+            }
         });
 
         // Clear data
-        document.getElementById('clearBtn').addEventListener('click', function() {
+        document.getElementById('clearBtn').addEventListener('click', async function() {
             if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
-                localStorage.removeItem('ac_co_analytics');
-                location.reload();
+                try {
+                    // Note: You'll need to add a DELETE endpoint to the backend if you want this functionality
+                    // For now, this is a placeholder
+                    alert('Clear data functionality requires a backend endpoint. Please delete the analytics.db file manually.');
+                } catch (error) {
+                    console.error('Error clearing data:', error);
+                    alert('Error clearing data. Please check the console.');
+                }
             }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            sessionStorage.removeItem('analytics_authenticated');
+            window.location.href = 'login.html';
         });
     }
 

@@ -9,6 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Check authentication before loading dashboard
+        if (sessionStorage.getItem('analytics_authenticated') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -18,6 +24,7 @@
                 <div class="header-actions">
                     <button id="exportBtn" class="btn-secondary">Export Data</button>
                     <button id="clearBtn" class="btn-danger">Clear Data</button>
+                    <button id="logoutBtn" class="btn-secondary">Logout</button>
                     <a href="index.html" class="btn-link">← Back to Site</a>
                 </div>
             </div>

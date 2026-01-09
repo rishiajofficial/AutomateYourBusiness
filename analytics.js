@@ -2,19 +2,28 @@
 (function() {
     'use strict';
 
-    // Get or initialize analytics data
-    function getAnalyticsData() {
-        const data = localStorage.getItem('ac_co_analytics');
-        return data ? JSON.parse(data) : {
-            pageViews: [],
-            sessions: [],
-            lastVisit: null
-        };
-    }
+    // API endpoint configuration
+    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : ''; // Set to your production API URL
 
-    // Save analytics data
-    function saveAnalyticsData(data) {
-        localStorage.setItem('ac_co_analytics', JSON.stringify(data));
+    // Send data to backend API
+    function sendToAPI(endpoint, data) {
+        if (!API_BASE_URL) {
+            console.warn('Analytics API URL not configured');
+            return;
+        }
+
+        fetch(`${API_BASE_URL}/api/analytics/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+            keepalive: true // Ensures request completes even if page is closing
+        }).catch(error => {
+            console.error('Analytics API error:', error);
+        });
     }
 
     // Get referrer information
@@ -76,14 +85,17 @@
         };
     }
 
+    // Track time on page
+    let startTime = Date.now();
+    let lastPageView = null;
+
     // Track page view
     function trackPageView() {
-        const analyticsData = getAnalyticsData();
         const now = new Date();
         const pagePath = window.location.pathname;
         const pageTitle = document.title;
         
-        const pageView = {
+        lastPageView = {
             timestamp: now.toISOString(),
             date: now.toISOString().split('T')[0],
             time: now.toTimeString().split(' ')[0],
@@ -95,16 +107,19 @@
             sessionId: getSessionId()
         };
 
-        analyticsData.pageViews.push(pageView);
-        
-        // Keep only last 1000 page views to prevent localStorage from getting too large
-        if (analyticsData.pageViews.length > 1000) {
-            analyticsData.pageViews = analyticsData.pageViews.slice(-1000);
-        }
-
-        analyticsData.lastVisit = now.toISOString();
-        saveAnalyticsData(analyticsData);
+        // Send to backend API
+        sendToAPI('track', lastPageView);
+        startTime = Date.now(); // Reset timer for this page
     }
+
+    // Track time on page when leaving
+    window.addEventListener('beforeunload', function() {
+        const timeOnPage = Math.round((Date.now() - startTime) / 1000);
+        if (lastPageView && timeOnPage > 0) {
+            // Send update with time on page
+            sendToAPI('track', { ...lastPageView, timeOnPage });
+        }
+    });
 
     // Generate or retrieve session ID
     function getSessionId() {
@@ -114,36 +129,19 @@
             sessionStorage.setItem('ac_co_session_id', sessionId);
             
             // Track new session
-            const analyticsData = getAnalyticsData();
             const now = new Date();
-            analyticsData.sessions.push({
+            const sessionData = {
                 sessionId: sessionId,
                 startTime: now.toISOString(),
                 startDate: now.toISOString().split('T')[0],
                 startTimeOnly: now.toTimeString().split(' ')[0]
-            });
+            };
             
-            // Keep only last 500 sessions
-            if (analyticsData.sessions.length > 500) {
-                analyticsData.sessions = analyticsData.sessions.slice(-500);
-            }
-            
-            saveAnalyticsData(analyticsData);
+            // Send to backend API
+            sendToAPI('session', sessionData);
         }
         return sessionId;
     }
-
-    // Track time on page (basic implementation)
-    let startTime = Date.now();
-    window.addEventListener('beforeunload', function() {
-        const timeOnPage = Math.round((Date.now() - startTime) / 1000);
-        const analyticsData = getAnalyticsData();
-        if (analyticsData.pageViews.length > 0) {
-            const lastView = analyticsData.pageViews[analyticsData.pageViews.length - 1];
-            lastView.timeOnPage = timeOnPage;
-            saveAnalyticsData(analyticsData);
-        }
-    });
 
     // Initialize tracking when DOM is ready
     if (document.readyState === 'loading') {
