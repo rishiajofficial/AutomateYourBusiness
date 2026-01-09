@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - AC & Co.</title>
+    <link rel="stylesheet" href="analytics-dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Analytics Dashboard</h1>
+                <div class="header-actions">
+                    <button id="exportBtn" class="btn-secondary">Export Data</button>
+                    <button id="clearBtn" class="btn-danger">Clear Data</button>
+                    <a href="index.html" class="btn-link">← Back to Site</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-icon">👁️</div>
+                    <div class="summary-content">
+                        <div class="summary-label">Total Page Views</div>
+                        <div class="summary-value" id="totalViews">0</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">👥</div>
+                    <div class="summary-content">
+                        <div class="summary-label">Total Sessions</div>
+                        <div class="summary-value" id="totalSessions">0</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">📄</div>
+                    <div class="summary-content">
+                        <div class="summary-label">Unique Pages</div>
+                        <div class="summary-value" id="uniquePages">0</div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">🔗</div>
+                    <div class="summary-content">
+                        <div class="summary-label">Top Referrer</div>
+                        <div class="summary-value" id="topReferrer">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>Page Views Over Time</h3>
+                    <canvas id="viewsChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Traffic Sources</h3>
+                    <canvas id="sourcesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Data Tables Row -->
+            <div class="tables-row">
+                <div class="table-card">
+                    <h3>Most Visited Pages</h3>
+                    <div class="table-container">
+                        <table id="pagesTable">
+                            <thead>
+                                <tr>
+                                    <th>Page</th>
+                                    <th>Views</th>
+                                    <th>% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <h3>Traffic Sources</h3>
+                    <div class="table-container">
+                        <table id="sourcesTable">
+                            <thead>
+                                <tr>
+                                    <th>Source</th>
+                                    <th>Visits</th>
+                                    <th>% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-card">
+                <h3>Recent Page Views</h3>
+                <div class="table-container">
+                    <table id="recentTable">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Page</th>
+                                <th>Source</th>
+                                <th>UTM Campaign</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="analytics-dashboard.js"></script>
+</body>
+</html>
